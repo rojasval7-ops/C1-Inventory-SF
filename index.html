@@ -3,500 +3,342 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reconciliación C1 — Salesforce</title>
+<title>C1 — Salesforce · Reconciliación</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e2e0d8;
-    --text: #1a1a18;
-    --text2: #6b6a64;
-    --text3: #9b9a94;
-    --accent: #004d98;
-    --accent2: #a50044;
-    --danger-bg: #fff1f1;
-    --danger: #c0392b;
-    --warning-bg: #fffbf0;
-    --warning: #b7770d;
-    --success-bg: #f0faf4;
-    --success: #1e7e48;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  
-  header {
-    background: var(--accent);
-    padding: 1.25rem 2rem;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .logo-bar { display: flex; align-items: center; gap: 12px; }
-  .logo-crest {
-    width: 36px; height: 36px;
-    background: var(--accent2);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: #fff; font-weight: bold;
-  }
-  .header-title { color: #fff; font-size: 17px; font-weight: normal; letter-spacing: 0.01em; }
-  .header-sub { color: rgba(255,255,255,0.6); font-size: 12px; font-family: 'Courier New', monospace; margin-top: 1px; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+:root {
+  --blue:#004d98;--red:#a50044;
+  --bg:#f7f8fa;--surface:#ffffff;--surface2:#f0f2f5;
+  --border:#e4e7ed;--border2:#d0d5dd;
+  --text:#111827;--text2:#4b5563;--text3:#9ca3af;
+  --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+  --warning:#d97706;--warning-bg:#fffbeb;--warning-border:#fde68a;
+  --success:#16a34a;--success-bg:#f0fdf4;--success-border:#bbf7d0;
+  --radius:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.crest{width:34px;height:34px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;}
+.header-title{font-size:15px;font-weight:600;color:var(--text);}
+.header-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.header-badge{font-size:11px;background:var(--surface2);color:var(--text3);padding:4px 10px;border-radius:999px;border:1px solid var(--border);}
 
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
-  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1rem; }
-  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Courier New', monospace; margin-bottom: 8px; }
-  .metric-val { font-size: 28px; color: var(--text); font-family: 'Georgia', serif; }
-  .metric-val.danger { color: var(--danger); }
-  .metric-val.warning { color: var(--warning); }
-  .metric-val.ok { color: var(--success); }
+main{max-width:1140px;margin:0 auto;padding:2rem 1.5rem;}
 
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
-  .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot-blue { background: var(--accent); }
-  .dot-green { background: var(--success); }
-  .card-title { font-size: 13px; color: var(--text2); font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--surface);margin-bottom:1.25rem;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:#f0f5ff;}
+.upload-zone.loaded{border-color:var(--success);border-style:solid;background:var(--success-bg);}
+.upload-icon{width:48px;height:48px;background:var(--surface2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:20px;border:1px solid var(--border);}
+.upload-zone.loaded .upload-icon{background:var(--success-bg);border-color:var(--success-border);}
+.upload-title{font-size:15px;font-weight:500;margin-bottom:4px;color:var(--text);}
+.upload-sub{font-size:13px;color:var(--text3);}
+.upload-sub span{color:var(--blue);font-weight:500;}
+#file-input{display:none;}
+.file-loaded-info{display:none;margin-top:0.75rem;font-size:12px;color:var(--success);}
+.upload-zone.loaded .file-loaded-info{display:block;}
 
-  label { font-size: 11px; color: var(--text3); font-family: 'Courier New', monospace; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-  input[type=text], input[type=password], textarea, select {
-    width: 100%; font-size: 13px; font-family: 'Courier New', monospace;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 8px 10px; background: var(--surface2); color: var(--text);
-    margin-bottom: 10px; outline: none;
-  }
-  input:focus, textarea:focus { border-color: var(--accent); }
-  textarea { resize: vertical; height: 90px; }
+.btn-analyze{display:none;width:100%;background:var(--blue);color:white;border:none;border-radius:var(--radius-lg);padding:12px 24px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:1.5rem;transition:opacity 0.15s;}
+.btn-analyze:hover{opacity:0.88;}
+.btn-analyze.visible{display:block;}
 
-  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .field-grid > div { display: flex; flex-direction: column; }
-  .field-grid input { margin-bottom: 0; }
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1rem;}
+.metric-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:500;margin-bottom:8px;}
+.metric-val{font-size:28px;font-weight:300;color:var(--text);letter-spacing:-0.02em;line-height:1;margin-bottom:3px;}
+.metric-val.danger{color:var(--danger);}
+.metric-val.warning{color:var(--warning);}
+.metric-val.blue{color:var(--blue);}
+.metric-val.red{color:var(--red);}
+.metric-sub{font-size:11px;color:var(--text3);}
 
-  .security-note {
-    font-size: 11px; color: var(--text3); font-family: 'Courier New', monospace;
-    background: var(--surface2); border-radius: var(--radius);
-    padding: 8px 12px; margin-bottom: 12px;
-    border-left: 3px solid var(--border);
-  }
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
+.panel-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.panel-dot{width:7px;height:7px;border-radius:50%;}
+.status-breakdown{display:flex;flex-direction:column;gap:9px;}
+.status-row{display:flex;align-items:center;gap:10px;}
+.status-name{font-size:12px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.status-bar-wrap{width:80px;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.status-bar{height:100%;border-radius:2px;transition:width 0.6s ease;}
+.status-count{font-size:12px;color:var(--text3);min-width:32px;text-align:right;font-variant-numeric:tabular-nums;}
 
-  .btn-row { display: flex; gap: 10px; margin-bottom: 2rem; align-items: center; flex-wrap: wrap; }
-  button {
-    cursor: pointer; font-family: 'Courier New', monospace; font-size: 13px;
-    border-radius: var(--radius); padding: 9px 20px; border: none; transition: opacity 0.15s;
-  }
-  .btn-primary { background: var(--accent); color: #fff; font-weight: bold; }
-  .btn-primary:hover { opacity: 0.88; }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-  .btn-outline:hover { background: var(--surface2); }
-  .btn-danger { background: transparent; color: var(--danger); border: 1px solid #f0c0c0; }
+.results-section{display:none;}
+.results-section.visible{display:block;}
+.results-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px;}
+.results-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);}
+.legend-swatch{width:10px;height:10px;border-radius:2px;}
+.results-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+select{font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;cursor:pointer;outline:none;font-family:'Inter',sans-serif;}
+select:focus{border-color:var(--blue);}
+.btn-export{font-size:12px;font-family:'Inter',sans-serif;background:var(--surface);color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 14px;cursor:pointer;transition:all 0.15s;font-weight:500;}
+.btn-export:hover{background:var(--surface2);}
+.count-info{font-size:12px;color:var(--text3);margin-bottom:10px;}
 
-  .status-line { font-size: 12px; color: var(--text3); font-family: 'Courier New', monospace; min-height: 20px; margin-top: 6px; display: flex; align-items: center; gap: 6px; }
-  .status-ok { color: var(--success); }
-  .status-err { color: var(--danger); }
-  .spinner { width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--surface2);}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--surface2);}
+tr.row-danger td{background:var(--danger-bg);}
+tr.row-warning td{background:var(--warning-bg);}
+tr.row-danger:hover td{background:#fee2e2;}
+tr.row-warning:hover td{background:#fef3c7;}
+td.td-main{color:var(--text);font-weight:500;}
 
-  .results-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .results-title { font-size: 16px; color: var(--text); }
-  .badge { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-family: 'Courier New', monospace; font-weight: bold; }
-  .badge-danger { background: var(--danger-bg); color: var(--danger); }
-  .badge-ok { background: var(--success-bg); color: var(--success); }
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;}
+.pill-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
+.pill-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);}
 
-  .filter-bar { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-  .filter-bar select { width: auto; margin-bottom: 0; font-size: 12px; padding: 6px 10px; }
-  .filter-bar label { margin: 0; font-size: 11px; }
-  .ml-auto { margin-left: auto; }
+.empty{text-align:center;padding:2.5rem;color:var(--text3);font-size:13px;}
 
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead { background: var(--surface2); }
-  th { text-align: left; font-size: 10px; font-family: 'Courier New', monospace; color: var(--text3); padding: 10px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
-  td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-family: 'Courier New', monospace; font-size: 12px; }
-  tr:last-child td { border-bottom: none; }
-  tr.row-danger td { background: var(--danger-bg); }
-  tr.row-warning td { background: var(--warning-bg); }
-  tr:hover td { filter: brightness(0.97); }
+.loading{display:none;text-align:center;padding:1.5rem;color:var(--text3);font-size:13px;}
+.loading.visible{display:block;}
+.spinner-inline{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:7px;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-  .pill { font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: bold; font-family: 'Courier New', monospace; white-space: nowrap; }
-  .pill-danger { background: var(--danger-bg); color: var(--danger); }
-  .pill-warning { background: var(--warning-bg); color: var(--warning); }
+.empty-state{text-align:center;padding:4rem 2rem;}
+.empty-state-icon{font-size:36px;margin-bottom:1rem;opacity:0.3;}
+.empty-state-title{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:4px;}
+.empty-state-sub{font-size:13px;color:var(--text3);}
 
-  .empty { text-align: center; padding: 3rem; color: var(--text3); font-family: 'Courier New', monospace; font-size: 13px; }
-
-  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
-
-  @media (max-width: 700px) {
-    .grid2 { grid-template-columns: 1fr; }
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .field-grid { grid-template-columns: 1fr; }
-  }
+@media(max-width:768px){
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .panels{grid-template-columns:1fr;}
+  main{padding:1rem;}
+  header{padding:0 1rem;}
+}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo-bar">
-    <div class="logo-crest">B</div>
+  <div class="header-left">
+    <div class="crest">B</div>
     <div>
       <div class="header-title">Reconciliación C1 — Salesforce</div>
-      <div class="header-sub">FC Barcelona · VIP Seat Management</div>
+      <div class="header-sub">VIP Seat Management · FC Barcelona</div>
     </div>
   </div>
+  <div class="header-badge" id="last-run">Sin datos</div>
 </header>
 
-<div class="container">
+<main>
+  <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+    <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)">
+    <div class="upload-icon" id="upload-icon">📊</div>
+    <div class="upload-title" id="upload-title">Sube el Excel de reconciliación</div>
+    <div class="upload-sub" id="upload-sub">Arrastra aquí o haz clic · Necesita las pestañas <span>Balcony C1</span> y <span>Balcony SF</span></div>
+    <div class="file-loaded-info" id="file-loaded-info">✓ Archivo cargado correctamente</div>
+  </div>
 
-  <div class="metrics">
+  <button class="btn-analyze" id="btn-analyze" onclick="runAnalysis()">Analizar y reconciliar</button>
+  <div class="loading" id="loading"><span class="spinner-inline"></span>Procesando datos...</div>
+
+  <div class="metrics" id="metrics" style="display:none;">
     <div class="metric">
       <div class="metric-label">Asientos C1</div>
-      <div class="metric-val" id="m-c1">—</div>
+      <div class="metric-val blue" id="m-c1">—</div>
+      <div class="metric-sub">total registros</div>
     </div>
     <div class="metric">
       <div class="metric-label">Asientos SF</div>
-      <div class="metric-val" id="m-sf">—</div>
+      <div class="metric-val red" id="m-sf">—</div>
+      <div class="metric-sub">total registros</div>
     </div>
     <div class="metric">
       <div class="metric-label">Falta en SF</div>
       <div class="metric-val danger" id="m-missing">—</div>
+      <div class="metric-sub">reservados sin registrar</div>
     </div>
     <div class="metric">
       <div class="metric-label">Status incorrecto</div>
       <div class="metric-val warning" id="m-diff">—</div>
+      <div class="metric-sub">discrepancias detectadas</div>
     </div>
   </div>
 
-  <div class="grid2">
-    <div class="card">
-      <div class="card-header"><div class="dot dot-blue"></div><div class="card-title">Channel 1 — API live</div></div>
-      <label>URL del endpoint</label>
-      <input type="text" id="c1-url" value="https://barcelona.vipfanportal.com/api/current/Balcony?csv=true" />
-      <div class="status-line" id="c1-status"></div>
+  <div class="panels" id="panels" style="display:none;">
+    <div class="panel">
+      <div class="panel-title"><div class="panel-dot" style="background:#004d98"></div>Channel 1 · distribución de status</div>
+      <div class="status-breakdown" id="c1-breakdown"></div>
     </div>
-
-    <div class="card">
-      <div class="card-header"><div class="dot dot-green"></div><div class="card-title">Salesforce — OAuth2</div></div>
-      <div class="security-note">🔒 Credenciales solo en memoria local. No se envían a ningún servidor externo.</div>
-      <div class="field-grid" style="margin-bottom:10px;">
-        <div>
-          <label>Consumer Key</label>
-          <input type="password" id="sf-key" placeholder="3MVG9..." />
-        </div>
-        <div>
-          <label>Consumer Secret</label>
-          <input type="password" id="sf-secret" placeholder="ABC123..." />
-        </div>
-        <div>
-          <label>Usuario SF</label>
-          <input type="text" id="sf-user" value="luis.rojas@ext.fcbarcelona.cat" />
-        </div>
-        <div>
-          <label>Contraseña + Security Token</label>
-          <input type="password" id="sf-pass" placeholder="ContraseñaToken (sin espacio)" />
-        </div>
-      </div>
-      <label>SOQL Query</label>
-      <textarea id="sf-query">SELECT Boca__c, Fila__c, Numero__c, Status__c FROM Seat__c WHERE Status__c != 'Available'</textarea>
-      <div style="display:flex; gap:8px;">
-        <button class="btn-outline" onclick="testSFConn()">Probar conexión</button>
-        <button class="btn-outline" onclick="exploreObjects()">Explorar objetos SF</button>
-      </div>
-      <div class="status-line" id="sf-status"></div>
+    <div class="panel">
+      <div class="panel-title"><div class="panel-dot" style="background:#16a34a"></div>Salesforce · distribución de status</div>
+      <div class="status-breakdown" id="sf-breakdown"></div>
     </div>
   </div>
 
-  <div class="btn-row">
-    <button class="btn-primary" id="btn-run" onclick="runAll()">▶ Cargar y reconciliar</button>
-    <button class="btn-outline" onclick="exportCSV()" id="export-btn" style="display:none;">⬇ Exportar conflictos CSV</button>
-  </div>
-
-  <div id="results" style="display:none;">
-    <hr class="divider">
+  <div class="results-section" id="results-section">
     <div class="results-header">
-      <div class="results-title">Conflictos detectados</div>
-      <span class="badge badge-danger" id="badge-count">0</span>
-      <span id="badge-ok" class="badge badge-ok" style="display:none;">✓ Todo OK</span>
-    </div>
-    <div class="filter-bar">
       <div>
-        <label>Tipo</label>
+        <div class="results-title">Conflictos detectados</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-swatch" style="background:var(--danger-bg);border:1px solid var(--danger-border)"></div>No registrado en SF</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:var(--warning-bg);border:1px solid var(--warning-border)"></div>Status incorrecto</div>
+        </div>
+      </div>
+      <div class="results-actions">
         <select id="filter-type" onchange="renderTable()">
           <option value="all">Todos los conflictos</option>
-          <option value="missing_sf">Solo en C1, no en SF</option>
-          <option value="status_diff">Status incorrecto en SF</option>
+          <option value="missing_sf">No en SF</option>
+          <option value="status_diff">Status incorrecto</option>
         </select>
-      </div>
-      <div>
-        <label>Sección</label>
-        <select id="filter-section" onchange="renderTable()"><option value="">Todas</option></select>
-      </div>
-      <div class="ml-auto" style="font-size:11px; color:var(--text3); font-family:'Courier New',monospace; align-self:flex-end;">
-        <span id="showing-count"></span>
+        <select id="filter-section" onchange="renderTable()"><option value="">Todas las secciones</option></select>
+        <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
       </div>
     </div>
+    <div class="count-info" id="count-info"></div>
     <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Section C1</th>
-            <th>Boca SF</th>
-            <th>Fila</th>
-            <th>Asiento</th>
-            <th>Status C1</th>
-            <th>Status SF actual</th>
-            <th>Status SF esperado</th>
-            <th>Problema</th>
-          </tr>
-        </thead>
-        <tbody id="results-body"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Section C1</th><th>Boca SF</th><th>Fila</th><th>Asiento</th>
+              <th>Status C1</th><th>Status SF actual</th><th>Esperado en SF</th><th>Problema</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div id="explore-results" style="display:none; margin-top:1.5rem;">
-    <hr class="divider">
-    <div class="results-title" style="margin-bottom:12px;">Objetos SF con campos relevantes</div>
-    <div id="explore-body"></div>
+  <div id="empty-state">
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <div class="empty-state-title">Sube el Excel para comenzar</div>
+      <div class="empty-state-sub">El archivo debe tener las pestañas "Balcony C1" y "Balcony SF"</div>
+    </div>
   </div>
-
-</div>
+</main>
 
 <script>
-let conflicts = [];
-
-const C1_TO_SF = {
-  'reserved from app': 'Sold',
-  'temporary sold': 'Sold',
-  'not available': 'Not Available',
-  '*category in parent': 'Available',
-};
-
-function normalizeSection(s) {
-  const n = parseInt((s || '').replace(/section\s*/i, '').trim());
-  return isNaN(n) ? '0000' : String(n).padStart(4, '0');
+let workbook=null,conflicts=[];
+const C1_TO_SF={'reserved from app':'Sold','temporary sold':'Temporary Sold','not available':'Not Available','blocked':'Not Available','vvip lateral':'Sold','vvip tribuna':'Sold','not in map':null,'*category in parent':null};
+const STATUS_COLORS={'Reserved from App':'#004d98','Temporary Sold':'#d97706','Not Available':'#dc2626','Blocked':'#dc2626','VVIP Lateral':'#7c3aed','VVIP Tribuna':'#7c3aed','*Category in Parent':'#d1d5db','Not In Map':'#d1d5db','Sold':'#16a34a','Available':'#d1d5db'};
+function normSection(s){s=String(s||'').replace(/section\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'0000':String(n).padStart(4,'0');}
+function normRow(s){s=String(s||'').replace(/row\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'00':String(n).padStart(2,'0');}
+function normSeat(s){s=String(s||'').replace(/seat\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'00':String(n).padStart(2,'0');}
+function makeKey(sec,row,seat){return normSection(sec)+'|'+normRow(row)+'|'+normSeat(seat);}
+const zone=document.getElementById('upload-zone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0]);});
+function handleFile(e){if(e.target.files[0])processFile(e.target.files[0]);}
+function processFile(file){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      workbook=XLSX.read(e.target.result,{type:'array'});
+      const sheets=workbook.SheetNames;
+      const hasC1=sheets.some(s=>s.toLowerCase().includes('c1'));
+      const hasSF=sheets.some(s=>s.toLowerCase().includes('sf'));
+      if(!hasC1||!hasSF){alert('El Excel necesita una pestaña con "C1" y otra con "SF".');return;}
+      zone.classList.add('loaded');
+      document.getElementById('upload-icon').textContent='✅';
+      document.getElementById('upload-title').textContent=file.name;
+      document.getElementById('upload-sub').textContent=(file.size/1024).toFixed(0)+' KB · Pestañas: '+sheets.join(', ');
+      document.getElementById('file-loaded-info').textContent='✓ Listo para analizar';
+      document.getElementById('btn-analyze').classList.add('visible');
+      document.getElementById('empty-state').style.display='none';
+    }catch(err){alert('Error al leer el archivo: '+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
 }
-function normalizeNum(s) {
-  const n = parseInt(s);
-  return isNaN(n) ? '00' : String(n).padStart(2, '0');
+function getSheetData(keyword){
+  const name=workbook.SheetNames.find(s=>s.toLowerCase().includes(keyword.toLowerCase()));
+  return name?XLSX.utils.sheet_to_json(workbook.Sheets[name],{header:1}):null;
 }
-function makeKey(sec, row, seat) {
-  return normalizeSection(sec) + '|' + normalizeNum(row) + '|' + normalizeNum(seat);
+function runAnalysis(){
+  if(!workbook)return;
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('btn-analyze').style.display='none';
+  setTimeout(()=>{try{analyze();}catch(e){alert('Error: '+e.message);document.getElementById('loading').classList.remove('visible');document.getElementById('btn-analyze').style.display='block';}},50);
 }
-
-function setStatus(id, html, cls) {
-  const el = document.getElementById(id);
-  el.innerHTML = html;
-  el.className = 'status-line' + (cls ? ' ' + cls : '');
-}
-function spin(id, msg) { setStatus(id, `<div class="spinner"></div> ${msg}`); }
-function ok(id, msg) { setStatus(id, `✓ ${msg}`, 'status-ok'); }
-function err(id, msg) { setStatus(id, `✗ ${msg}`, 'status-err'); }
-
-function parseC1CSV(text) {
-  const lines = text.trim().split('\n').filter(l => l.trim());
-  const first = lines[0].toLowerCase();
-  const hasHeader = first.includes('column') || first.includes('section') || first.includes('zone') || first.includes('category');
-  const rows = [];
-  for (let i = hasHeader ? 1 : 0; i < lines.length; i++) {
-    const p = lines[i].split(',').map(s => s.trim().replace(/^"|"$/g, ''));
-    if (p.length < 6) continue;
-    rows.push({ section: p[2], row: p[3], seat: p[4], status: p[5], key: makeKey(p[2], p[3], p[4]) });
+function analyze(){
+  const c1Data=getSheetData('c1'),sfData=getSheetData('sf');
+  if(!c1Data||!sfData)throw new Error('No se encontraron las pestañas C1 y SF');
+  const c1Rows=[],c1SC={};
+  for(let i=1;i<c1Data.length;i++){
+    const r=c1Data[i];if(!r||!r[2])continue;
+    const section=String(r[2]||''),row=String(r[3]||''),seat=String(r[4]||''),status=String(r[5]||'');
+    if(!row.trim()||!seat.trim()||row.trim()===''||seat.trim()==='')continue;
+    c1SC[status]=(c1SC[status]||0)+1;
+    c1Rows.push({section,row,seat,status,key:makeKey(section,row,seat)});
   }
-  return rows;
-}
-
-async function getToken() {
-  const key = document.getElementById('sf-key').value.trim();
-  const secret = document.getElementById('sf-secret').value.trim();
-  const user = document.getElementById('sf-user').value.trim();
-  const pass = document.getElementById('sf-pass').value.trim();
-  if (!key || !secret || !user || !pass) throw new Error('Rellena todos los campos de SF');
-
-  const body = new URLSearchParams({ grant_type: 'password', client_id: key, client_secret: secret, username: user, password: pass });
-  const resp = await fetch('https://fcbarcelona.my.salesforce.com/services/oauth2/token', {
-    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString()
-  });
-  const data = await resp.json();
-  if (!data.access_token) throw new Error(data.error_description || JSON.stringify(data));
-  return { token: data.access_token, instance: data.instance_url };
-}
-
-async function testSFConn() {
-  spin('sf-status', 'Conectando...');
-  try {
-    const { token, instance } = await getToken();
-    ok('sf-status', `Conectado · ${instance}`);
-  } catch(e) { err('sf-status', e.message); }
-}
-
-async function fetchSFData(token, instance) {
-  const query = document.getElementById('sf-query').value.trim();
-  let url = `${instance}/services/data/v59.0/query?q=${encodeURIComponent(query)}`;
-  let records = [];
-  while (url) {
-    const resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
-    const data = await resp.json();
-    if (data.errorCode) throw new Error(`SF Error: ${data.message || data.errorCode}`);
-    records = records.concat(data.records || []);
-    url = data.nextRecordsUrl ? instance + data.nextRecordsUrl : null;
+  const sfMap={},sfSC={};
+  for(let i=1;i<sfData.length;i++){
+    const r=sfData[i];if(!r||!r[2])continue;
+    const boca=String(r[2]||''),fila=String(r[3]||''),numero=String(r[4]||''),status=String(r[5]||'');
+    sfSC[status]=(sfSC[status]||0)+1;
+    sfMap[makeKey(boca,fila,numero)]=status;
   }
-  return records.map(r => {
-    const keys = Object.keys(r).filter(k => k !== 'attributes');
-    const boca = r[keys[0]] || '';
-    const fila = r[keys[1]] || '';
-    const numero = r[keys[2]] || '';
-    const status = r[keys[3]] || '';
-    return { section: String(boca), row: String(fila), seat: String(numero), status, key: makeKey(String(boca), String(fila), String(numero)) };
-  });
-}
-
-async function exploreObjects() {
-  spin('sf-status', 'Explorando objetos SF...');
-  document.getElementById('explore-results').style.display = 'none';
-  try {
-    const { token, instance } = await getToken();
-    ok('sf-status', 'Conectado, buscando objetos con campos de asientos...');
-
-    const resp = await fetch(`${instance}/services/data/v59.0/sobjects`, { headers: { Authorization: 'Bearer ' + token } });
-    const data = await resp.json();
-    const objects = (data.sobjects || []).filter(o => o.queryable && o.createable);
-
-    const keywords = ['seat','asiento','boca','fila','butaca','ticket','vip','stand','tribune','tribuna','section','row'];
-    const relevant = objects.filter(o => {
-      const name = (o.name + o.label).toLowerCase();
-      return keywords.some(k => name.includes(k));
-    }).slice(0, 20);
-
-    const bodyEl = document.getElementById('explore-body');
-    if (!relevant.length) {
-      bodyEl.innerHTML = '<p style="color:var(--text3);font-family:\'Courier New\',monospace;font-size:13px;">No se encontraron objetos con nombres relacionados a asientos. Prueba a revisar manualmente en Gestor de Objetos.</p>';
-    } else {
-      bodyEl.innerHTML = relevant.map(o =>
-        `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;font-family:'Courier New',monospace;font-size:12px;">
-          <strong style="color:var(--accent);font-size:13px;">${o.name}</strong>
-          <span style="color:var(--text3);margin-left:8px;">${o.label}</span>
-          <button onclick="queryObject('${o.name}','${token}','${instance}')" style="float:right;font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);cursor:pointer;font-family:'Courier New',monospace;">Ver campos</button>
-        </div>`
-      ).join('');
+  conflicts=[];
+  for(const r of c1Rows){
+    const sl=r.status.toLowerCase(),expectedSF=C1_TO_SF[sl];
+    if(expectedSF===undefined||expectedSF===null)continue;
+    const sfStatus=sfMap[r.key];
+    if(sfStatus===undefined){
+      conflicts.push({...r,boca:normSection(r.section),sf_status:'—',expected_sf:expectedSF,type:'missing_sf'});
+    }else if(sfStatus.toLowerCase()!==expectedSF.toLowerCase()){
+      conflicts.push({...r,boca:normSection(r.section),sf_status:sfStatus,expected_sf:expectedSF,type:'status_diff'});
     }
-    document.getElementById('explore-results').style.display = 'block';
-    ok('sf-status', `${relevant.length} objetos relevantes encontrados`);
-  } catch(e) { err('sf-status', e.message); }
-}
-
-async function queryObject(objectName, token, instance) {
-  try {
-    const resp = await fetch(`${instance}/services/data/v59.0/sobjects/${objectName}/describe`, { headers: { Authorization: 'Bearer ' + token } });
-    const data = await resp.json();
-    const fields = (data.fields || []).map(f => f.name).join(', ');
-    const query = `SELECT ${(data.fields || []).slice(0,8).map(f=>f.name).join(', ')} FROM ${objectName} LIMIT 5`;
-    document.getElementById('sf-query').value = query;
-    alert(`Objeto: ${objectName}\nCampos disponibles:\n${fields}\n\nQuery de prueba cargada en el campo SOQL.`);
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-async function runAll() {
-  const btn = document.getElementById('btn-run');
-  btn.disabled = true;
-  document.getElementById('results').style.display = 'none';
-  try {
-    spin('c1-status', 'Cargando C1...');
-    spin('sf-status', 'Autenticando SF...');
-
-    const c1url = document.getElementById('c1-url').value.trim();
-    const [c1resp, sfAuth] = await Promise.all([fetch(c1url), getToken()]);
-
-    if (!c1resp.ok) throw new Error('C1 HTTP ' + c1resp.status);
-    const c1text = await c1resp.text();
-    const c1rows = parseC1CSV(c1text);
-    ok('c1-status', `${c1rows.length} asientos cargados`);
-
-    setStatus('sf-status', '<div class="spinner"></div> Cargando datos SF...');
-    const sfrows = await fetchSFData(sfAuth.token, sfAuth.instance);
-    ok('sf-status', `${sfrows.length} registros cargados`);
-
-    document.getElementById('m-c1').textContent = c1rows.length;
-    document.getElementById('m-sf').textContent = sfrows.length;
-
-    const sfmap = {};
-    sfrows.forEach(r => sfmap[r.key] = r);
-
-    conflicts = [];
-    const occupied = ['reserved from app', 'temporary sold', 'not available'];
-    c1rows.forEach(r => {
-      const sl = (r.status || '').toLowerCase();
-      if (!occupied.includes(sl)) return;
-      const expectedSF = C1_TO_SF[sl] || '?';
-      const sfRow = sfmap[r.key];
-      if (!sfRow) {
-        conflicts.push({ c1_section: r.section, boca: normalizeSection(r.section), row: r.row, seat: r.seat, c1_status: r.status, sf_status: '—', expected_sf: expectedSF, type: 'missing_sf' });
-      } else if ((sfRow.status || '').toLowerCase() !== expectedSF.toLowerCase()) {
-        conflicts.push({ c1_section: r.section, boca: normalizeSection(r.section), row: r.row, seat: r.seat, c1_status: r.status, sf_status: sfRow.status, expected_sf: expectedSF, type: 'status_diff' });
-      }
-    });
-
-    document.getElementById('m-missing').textContent = conflicts.filter(c => c.type === 'missing_sf').length;
-    document.getElementById('m-diff').textContent = conflicts.filter(c => c.type === 'status_diff').length;
-    document.getElementById('badge-count').textContent = conflicts.length;
-    document.getElementById('badge-count').style.display = conflicts.length ? 'inline' : 'none';
-    document.getElementById('badge-ok').style.display = !conflicts.length ? 'inline' : 'none';
-
-    const sections = [...new Set(conflicts.map(c => c.c1_section))].sort();
-    const sel = document.getElementById('filter-section');
-    sel.innerHTML = '<option value="">Todas</option>' + sections.map(s => `<option value="${s}">${s}</option>`).join('');
-
-    document.getElementById('results').style.display = 'block';
-    document.getElementById('export-btn').style.display = conflicts.length ? 'inline-block' : 'none';
-    renderTable();
-  } catch(e) {
-    err('sf-status', e.message);
-    err('c1-status', '');
   }
-  btn.disabled = false;
+  const missing=conflicts.filter(c=>c.type==='missing_sf'),diff=conflicts.filter(c=>c.type==='status_diff');
+  document.getElementById('m-c1').textContent=c1Rows.length.toLocaleString();
+  document.getElementById('m-sf').textContent=Object.keys(sfMap).length.toLocaleString();
+  document.getElementById('m-missing').textContent=missing.length.toLocaleString();
+  document.getElementById('m-diff').textContent=diff.length.toLocaleString();
+  renderBreakdown('c1-breakdown',c1SC);
+  renderBreakdown('sf-breakdown',sfSC);
+  const sections=[...new Set(conflicts.map(c=>c.section))].sort();
+  const sel=document.getElementById('filter-section');
+  sel.innerHTML='<option value="">Todas las secciones</option>'+sections.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  document.getElementById('metrics').style.display='grid';
+  document.getElementById('panels').style.display='grid';
+  document.getElementById('results-section').classList.add('visible');
+  document.getElementById('loading').classList.remove('visible');
+  document.getElementById('empty-state').style.display='none';
+  const now=new Date();
+  document.getElementById('last-run').textContent='Actualizado '+now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  renderTable();
 }
-
-function renderTable() {
-  const ftype = document.getElementById('filter-type').value;
-  const fsec = document.getElementById('filter-section').value;
-  let rows = conflicts;
-  if (ftype !== 'all') rows = rows.filter(r => r.type === ftype);
-  if (fsec) rows = rows.filter(r => r.c1_section === fsec);
-  document.getElementById('showing-count').textContent = `${rows.length} conflicto${rows.length !== 1 ? 's' : ''}`;
-  const body = document.getElementById('results-body');
-  if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="8" class="empty">Sin conflictos con estos filtros</td></tr>';
-    return;
-  }
-  body.innerHTML = rows.map(r => {
-    const cls = r.type === 'missing_sf' ? 'row-danger' : 'row-warning';
-    const pill = r.type === 'missing_sf'
-      ? '<span class="pill pill-danger">No en SF</span>'
-      : '<span class="pill pill-warning">Status incorrecto</span>';
-    return `<tr class="${cls}">
-      <td>${r.c1_section}</td><td>${r.boca}</td><td>${r.row}</td><td>${r.seat}</td>
-      <td>${r.c1_status}</td><td>${r.sf_status}</td>
-      <td style="color:var(--text3)">${r.expected_sf}</td>
-      <td>${pill}</td>
-    </tr>`;
+function renderBreakdown(id,counts){
+  const el=document.getElementById(id);
+  const sorted=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0]?sorted[0][1]:1;
+  el.innerHTML=sorted.map(([status,count])=>{
+    const pct=Math.round((count/max)*100),color=STATUS_COLORS[status]||'#d1d5db';
+    return '<div class="status-row"><div class="status-name">'+status+'</div><div class="status-bar-wrap"><div class="status-bar" style="width:'+pct+'%;background:'+color+'"></div></div><div class="status-count">'+count+'</div></div>';
   }).join('');
 }
-
-function exportCSV() {
-  const header = 'Section C1,Boca SF,Fila,Asiento,Status C1,Status SF actual,Status SF esperado,Problema\n';
-  const rows = conflicts.map(r =>
-    [r.c1_section, r.boca, r.row, r.seat, r.c1_status, r.sf_status, r.expected_sf,
-     r.type === 'missing_sf' ? 'No en SF' : 'Status incorrecto'].join(',')
-  ).join('\n');
-  const blob = new Blob([header + rows], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `conflictos_c1_sf_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+function renderTable(){
+  const ftype=document.getElementById('filter-type').value,fsec=document.getElementById('filter-section').value;
+  let rows=conflicts;
+  if(ftype!=='all')rows=rows.filter(r=>r.type===ftype);
+  if(fsec)rows=rows.filter(r=>r.section===fsec);
+  document.getElementById('count-info').textContent='Mostrando '+rows.length+' de '+conflicts.length+' conflictos';
+  const body=document.getElementById('results-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="8" class="empty">Sin conflictos con estos filtros</td></tr>';return;}
+  body.innerHTML=rows.map(r=>{
+    const cls=r.type==='missing_sf'?'row-danger':'row-warning';
+    const pill=r.type==='missing_sf'?'<span class="pill pill-danger">No en SF</span>':'<span class="pill pill-warning">Status incorrecto</span>';
+    return '<tr class="'+cls+'"><td class="td-main">'+r.section+'</td><td>'+r.boca+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td>'+r.status+'</td><td>'+r.sf_status+'</td><td style="color:var(--text3)">'+r.expected_sf+'</td><td>'+pill+'</td></tr>';
+  }).join('');
+}
+function exportCSV(){
+  const header='Section C1,Boca SF,Fila,Asiento,Status C1,Status SF actual,Status SF esperado,Problema\n';
+  const rows=conflicts.map(r=>[r.section,r.boca,normRow(r.row),normSeat(r.seat),r.status,r.sf_status,r.expected_sf,r.type==='missing_sf'?'No en SF':'Status incorrecto'].join(',')).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='conflictos_c1_sf_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 </script>
 </body>
