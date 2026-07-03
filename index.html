@@ -343,6 +343,11 @@ td.td-main{color:var(--text);font-weight:500;}
       <div class="metric-val warning" id="m-diff">—</div>
       <div class="metric-sub">discrepancias detectadas</div>
     </div>
+    <div class="metric" style="border-top:3px solid #7c3aed;">
+      <div class="metric-label">Reserved en SF</div>
+      <div class="metric-val" style="color:#7c3aed;" id="m-reserved">—</div>
+      <div class="metric-sub">pendientes de confirmar</div>
+    </div>
   </div>
 
   <div class="panels" id="panels" style="display:none;">
@@ -357,6 +362,13 @@ td.td-main{color:var(--text);font-weight:500;}
   </div>
 
   <div class="results-section" id="results-section">
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;">
+      <button class="results-tab active" id="rtab-conflicts" onclick="switchResultTab('conflicts')" style="font-size:13px;font-weight:500;font-family:'Inter',sans-serif;padding:9px 18px;border:none;background:transparent;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;">Conflictos <span id="rtab-badge-conflicts" style="font-size:10px;padding:1px 6px;border-radius:999px;background:#fee2e2;color:#dc2626;font-weight:700;margin-left:4px;">0</span></button>
+      <button class="results-tab" id="rtab-reserved" onclick="switchResultTab('reserved')" style="font-size:13px;font-weight:500;font-family:'Inter',sans-serif;padding:9px 18px;border:none;background:transparent;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;">Reserved en SF <span id="rtab-badge-reserved" style="font-size:10px;padding:1px 6px;border-radius:999px;background:#ede9fe;color:#7c3aed;font-weight:700;margin-left:4px;">0</span></button>
+    </div>
+
+    <!-- CONFLICTS PANEL -->
+    <div id="rpanel-conflicts">
     <div class="results-header">
       <div>
         <div class="results-title">Conflictos detectados</div>
@@ -391,6 +403,33 @@ td.td-main{color:var(--text);font-weight:500;}
       </div>
     </div>
 
+    </div> <!-- end rpanel-conflicts -->
+
+    <!-- RESERVED SF PANEL -->
+    <div id="rpanel-reserved" style="display:none;">
+      <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;">Asientos Reserved en Salesforce</div>
+          <div style="font-size:12px;color:var(--text3);">Asientos con status "Reserved" en SF — pendientes de confirmar como Sold</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select id="reserved-filter-product" onchange="renderReservedTable()" style="font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;cursor:pointer;font-family:'Inter',sans-serif;"><option value="">Todos los productos</option></select>
+          <button class="btn-export" onclick="exportReservedCSV()">⬇ Exportar CSV</button>
+        </div>
+      </div>
+      <div class="count-info" id="reserved-count-info"></div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead><tr>
+              <th>Producto</th><th>Boca SF</th><th>Fila</th><th>Asiento</th><th>Status SF</th>
+            </tr></thead>
+            <tbody id="reserved-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div id="empty-state">
@@ -417,7 +456,7 @@ td.td-main{color:var(--text);font-weight:500;}
 </style>
 
 <script>
-let workbook=null,conflicts=[],currentLang='es';
+let workbook=null,conflicts=[],reservedRows=[],currentLang='es';
 
 // Asientos excluidos — no se reportan como error aunque no estén en SF
 const whitelistKeys=new Set([
@@ -636,6 +675,21 @@ function analyze(){
     sfMap[makeKey(boca,fila,numero)]=status;
   }
 
+  // Build reserved rows from SF
+  reservedRows=[];
+  for(let i=1;i<sfData.length;i++){
+    const r=sfData[i];if(!r||!r[2])continue;
+    if((r[5]||'').toString().toLowerCase()==='reserved'){
+      reservedRows.push({product:String(r[0]||''),section:String(r[2]||''),row:String(r[3]||''),seat:String(r[4]||'')});
+    }
+  }
+  document.getElementById('m-reserved').textContent=reservedRows.length.toLocaleString();
+
+  // Populate reserved product filter
+  const resProd=[...new Set(reservedRows.map(r=>r.product))].filter(Boolean).sort();
+  const rps=document.getElementById('reserved-filter-product');
+  rps.innerHTML='<option value="">Todos los productos</option>'+resProd.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+
   // Reconcile
   conflicts=[];
   for(const r of c1Rows){
@@ -644,8 +698,8 @@ function analyze(){
     const sfStatus=sfMap[r.key];
     // Excepción: asientos en whitelist CSV se ignoran si no están en SF
     if(whitelistKeys.has(r.key)) continue;
-    // Excepción: Reserved from App en C1 + Not Available en SF = correcto
-    if(sfStatus!==undefined && sl==='reserved from app' && sfStatus.toLowerCase()==='not available') continue;
+    // Excepción: Reserved from App en C1 + Not Available o Reserved en SF = correcto
+    if(sfStatus!==undefined && sl==='reserved from app' && (sfStatus.toLowerCase()==='not available'||sfStatus.toLowerCase()==='reserved')) continue;
     if(sfStatus===undefined){
       conflicts.push({...r,boca:normSection(r.section),sf_status:'—',expected_sf:expectedSF,type:'missing_sf'});
     }else if(sfStatus.toLowerCase()!==expectedSF.toLowerCase()){
@@ -657,6 +711,9 @@ function analyze(){
   document.getElementById('m-c1').textContent=c1Rows.length.toLocaleString();
   document.getElementById('m-sf').textContent=Object.keys(sfMap).length.toLocaleString();
   document.getElementById('m-missing').textContent=conflicts.filter(c=>c.type==='missing_sf').length.toLocaleString();
+  document.getElementById('rtab-badge-conflicts').textContent=conflicts.length;
+  document.getElementById('rtab-badge-reserved').textContent=reservedRows.length;
+  renderReservedTable();
   document.getElementById('m-diff').textContent=conflicts.filter(c=>c.type==='status_diff').length.toLocaleString();
 
   // Product summary cards
@@ -693,7 +750,7 @@ function analyze(){
 
   document.getElementById('product-summary').style.display='block';
   document.getElementById('hero-section').style.display='none';
-  document.getElementById('metrics').style.display='grid';
+  document.getElementById('metrics').style.display='grid';document.getElementById('metrics').style.gridTemplateColumns='repeat(5,1fr)';
   document.getElementById('panels').style.display='grid';
   document.getElementById('results-section').classList.add('visible');
   document.getElementById('loading').classList.remove('visible');
@@ -744,6 +801,36 @@ function renderTable(){
 
 
 
+
+function switchResultTab(tab){
+  ['conflicts','reserved'].forEach(t=>{
+    document.getElementById('rpanel-'+t).style.display=t===tab?'block':'none';
+    const btn=document.getElementById('rtab-'+t);
+    btn.style.color=t===tab?'var(--blue)':'#9ca3af';
+    btn.style.borderBottom=t===tab?'2px solid var(--blue)':'2px solid transparent';
+  });
+}
+
+function renderReservedTable(){
+  const fprod=document.getElementById('reserved-filter-product').value;
+  let rows=reservedRows;
+  if(fprod)rows=rows.filter(r=>r.product===fprod);
+  document.getElementById('reserved-count-info').textContent='Mostrando '+rows.length+' de '+reservedRows.length+' asientos';
+  const body=document.getElementById('reserved-body');
+  if(!rows.length){body.innerHTML='<tr><td colspan="5" class="empty">Sin asientos Reserved en SF</td></tr>';return;}
+  body.innerHTML=rows.map(r=>{
+    const pcolor=PRODUCT_COLORS[r.product]||'#6b7280';
+    const ptag='<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:'+pcolor+'18;color:'+pcolor+';font-weight:500;">'+r.product+'</span>';
+    return '<tr><td>'+ptag+'</td><td class="td-main">'+r.section+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:999px;background:#ede9fe;color:#7c3aed;font-weight:600;">Reserved</span></td></tr>';
+  }).join('');
+}
+
+function exportReservedCSV(){
+  const header='Producto,Boca SF,Fila,Asiento,Status SF' + String.fromCharCode(10);
+  const rows=reservedRows.map(r=>[r.product,r.section,normRow(r.row),normSeat(r.seat),'Reserved'].join(',')).join(String.fromCharCode(10));
+  const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reserved_sf_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
 
 function exportCSV(){
   const t=T[currentLang];
