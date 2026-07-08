@@ -29,7 +29,7 @@ header{background:#000000;border-bottom:1px solid rgba(255,255,255,0.1);padding:
 .header-sub{font-size:11px;color:var(--text3);margin-top:1px;}
 .header-badge{font-size:11px;background:var(--surface2);color:var(--text3);padding:4px 10px;border-radius:999px;border:1px solid var(--border);}
 
-main{max-width:1140px;margin:0 auto;padding:2rem 1.5rem;}
+main{max-width:1600px;margin:0 auto;padding:2rem 2.5rem;}
 
 .upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--surface);margin-bottom:1.25rem;}
 .upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:#f0f5ff;}
@@ -59,6 +59,8 @@ main{max-width:1140px;margin:0 auto;padding:2rem 1.5rem;}
 
 .panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
+.panels-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:1050px){.panels-grid{grid-template-columns:1fr!important;}}
 .panel-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
 .panel-dot{width:7px;height:7px;border-radius:50%;}
 .status-breakdown{display:flex;flex-direction:column;gap:9px;}
@@ -84,19 +86,19 @@ select:focus{border-color:var(--blue);}
 
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
 .table-scroll{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
+table{width:auto;border-collapse:collapse;table-layout:auto;}
 thead{background:var(--surface2);}
-th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em;}
-td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover td{background:var(--surface2);}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);padding:9px 14px;border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:0.03em;}
+td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--text2);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+tbody tr:last-child td{border-bottom:none;}tbody tr td:first-child{padding-left:12px;}tbody tr td:last-child{padding-right:12px;}
+tbody tr:hover td{background:var(--surface2);}tbody tr:nth-child(even) td{background:rgba(0,0,0,0.012);}tbody tr:nth-child(even):hover td{background:var(--surface2);}
 tr.row-danger td{background:var(--danger-bg);}
 tr.row-warning td{background:var(--warning-bg);}
 tr.row-danger:hover td{background:#fee2e2;}
 tr.row-warning:hover td{background:#fef3c7;}
-td.td-main{color:var(--text);font-weight:500;}
+td.td-main{color:var(--text);font-weight:600;font-size:13px;}
 
-.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap;}
+.pill{display:inline-block;font-size:12px;padding:4px 12px;border-radius:999px;font-weight:600;white-space:nowrap;}
 .pill-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
 .pill-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);}
 
@@ -128,6 +130,13 @@ td.td-main{color:var(--text);font-weight:500;}
   .panels{grid-template-columns:1fr;}
   main{padding:1rem;}
   header{padding:0 1rem;}
+}
+@media(max-width:1100px){
+  #panels > div {grid-template-columns:1fr!important;}
+}
+@media(max-width:900px){
+  main{max-width:100%;padding:1rem 1rem;}
+  .metrics{grid-template-columns:repeat(3,1fr);}
 }
 </style>
 </head>
@@ -173,7 +182,7 @@ td.td-main{color:var(--text);font-weight:500;}
         <thead>
           <tr style="background:#f7f8fa;">
             <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e4e7ed;">Status C1</th>
-            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e4e7ed;">Status SF</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e4e7ed;">Status SF actual</th>
             <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e4e7ed;">Resultado</th>
           </tr>
         </thead>
@@ -350,84 +359,105 @@ td.td-main{color:var(--text);font-weight:500;}
     </div>
   </div>
 
-  <div class="panels" id="panels" style="display:none;">
-    <div class="panel">
-      <div class="panel-title"><div class="panel-dot" style="background:#004d98"></div>Channel 1 · distribución de status</div>
-      <div class="status-breakdown" id="c1-breakdown"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title"><div class="panel-dot" style="background:#16a34a"></div>Salesforce · distribución de status</div>
-      <div class="status-breakdown" id="sf-breakdown"></div>
+  <div id="panels" style="display:none;margin-bottom:1.5rem;">
+    <div class="panels-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;min-width:0;">
+
+      <!-- C1 TABLE -->
+      <div class="panel" style="padding:0;overflow:hidden;">
+        <div class="panel-title" style="padding:14px 16px;margin-bottom:0;border-bottom:1px solid var(--border);">
+          <div class="panel-dot" style="background:#004d98"></div>Channel 1 · distribución de status
+        </div>
+        <div>
+          <table id="c1-breakdown-table" style="width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;">
+            <thead id="c1-breakdown-head"></thead>
+            <tbody id="c1-breakdown-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SF TABLE -->
+      <div class="panel" style="padding:0;overflow:hidden;">
+        <div class="panel-title" style="padding:14px 16px;margin-bottom:0;border-bottom:1px solid var(--border);">
+          <div class="panel-dot" style="background:#16a34a"></div>Salesforce · distribución de status
+        </div>
+        <div>
+          <table id="sf-breakdown-table" style="width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;">
+            <thead id="sf-breakdown-head"></thead>
+            <tbody id="sf-breakdown-body"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <div class="results-section" id="results-section">
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;">
-      <button class="results-tab active" id="rtab-conflicts" onclick="switchResultTab('conflicts')" style="font-size:13px;font-weight:500;font-family:'Inter',sans-serif;padding:9px 18px;border:none;background:transparent;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;">Conflictos <span id="rtab-badge-conflicts" style="font-size:10px;padding:1px 6px;border-radius:999px;background:#fee2e2;color:#dc2626;font-weight:700;margin-left:4px;">0</span></button>
-      <button class="results-tab" id="rtab-reserved" onclick="switchResultTab('reserved')" style="font-size:13px;font-weight:500;font-family:'Inter',sans-serif;padding:9px 18px;border:none;background:transparent;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;">Reserved en SF <span id="rtab-badge-reserved" style="font-size:10px;padding:1px 6px;border-radius:999px;background:#ede9fe;color:#7c3aed;font-weight:700;margin-left:4px;">0</span></button>
-    </div>
+    <!-- SIDE BY SIDE PANELS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
 
-    <!-- CONFLICTS PANEL -->
-    <div id="rpanel-conflicts">
-    <div class="results-header">
+      <!-- CONFLICTS TABLE -->
       <div>
-        <div class="results-title">Conflictos detectados</div>
-        <div class="legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:var(--danger-bg);border:1px solid var(--danger-border)"></div>No registrado en SF</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:var(--warning-bg);border:1px solid var(--warning-border)"></div>Status incorrecto</div>
+        <div class="results-header" style="margin-bottom:10px;">
+          <div>
+            <div class="results-title">Conflictos detectados</div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--danger-bg);border:1px solid var(--danger-border)"></div>No registrado en SF</div>
+              <div class="legend-item"><div class="legend-swatch" style="background:var(--warning-bg);border:1px solid var(--warning-border)"></div>Status incorrecto</div>
+            </div>
+          </div>
+          <div class="results-actions">
+            <select id="filter-product" onchange="renderTable()"><option value="">Todos los productos</option></select>
+            <select id="filter-type" onchange="renderTable()">
+              <option value="all">Todos los conflictos</option>
+              <option value="missing_sf">No en SF</option>
+              <option value="status_diff">Status incorrecto</option>
+            </select>
+            <select id="filter-section" onchange="renderTable()"><option value="">Todas las secciones</option></select>
+            <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
+          </div>
+        </div>
+        <div class="count-info" id="count-info"></div>
+        <div class="table-wrap">
+            <div class="table-scroll">
+              <table style="table-layout:auto;width:100%;">
+                <thead>
+                  <tr>
+                    <th>Producto</th><th>Boca</th><th>Fila</th><th>Asiento</th>
+                    <th>Status C1</th><th>Status SF actual</th><th>Problema</th>
+                  </tr>
+                </thead>
+                <tbody id="results-body"><tr><td colspan="7" class="empty">Sin datos</td></tr></tbody>
+              </table>
+            </div>
         </div>
       </div>
-      <div class="results-actions">
-        <select id="filter-product" onchange="renderTable()"><option value="">Todos los productos</option></select>
-        <select id="filter-type" onchange="renderTable()">
-          <option value="all">Todos los conflictos</option>
-          <option value="missing_sf">No en SF</option>
-          <option value="status_diff">Status incorrecto</option>
-        </select>
-        <select id="filter-section" onchange="renderTable()"><option value="">Todas las secciones</option></select>
-        <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
-      </div>
-    </div>
-    <div class="count-info" id="count-info"></div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th><th>Section C1</th><th>Boca SF</th><th>Fila</th><th>Asiento</th>
-              <th>Status C1</th><th>Status SF actual</th><th>Esperado en SF</th><th>Problema</th>
-            </tr>
-          </thead>
-          <tbody id="results-body"></tbody>
-        </table>
-      </div>
-    </div>
 
-    </div> <!-- end rpanel-conflicts -->
+      <!-- RESERVED SF TABLE -->
+      <div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div>
+            <div class="results-title">Reserved en SF</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">Pendientes de confirmar como Sold</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="reserved-filter-product" onchange="renderReservedTable()" style="font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;cursor:pointer;font-family:'Inter',sans-serif;"><option value="">Todos</option></select>
+            <button class="btn-export" onclick="exportReservedCSV()">⬇ CSV</button>
+          </div>
+        </div>
+        <div id="reserved-breakdown" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+        <div class="count-info" id="reserved-count-info"></div>
+        <div class="table-wrap">
+            <div class="table-scroll">
+              <table style="table-layout:auto;width:100%;">
+                <thead><tr>
+                  <th>Producto</th><th>Boca</th><th>Fila</th><th>Asiento</th><th>Status SF</th>
+                </tr></thead>
+                <tbody id="reserved-body"><tr><td colspan="5" class="empty">Sin datos</td></tr></tbody>
+              </table>
+            </div>
+        </div>
+      </div>
 
-    <!-- RESERVED SF PANEL -->
-    <div id="rpanel-reserved" style="display:none;">
-      <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <div>
-          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;">Asientos Reserved en Salesforce</div>
-          <div style="font-size:12px;color:var(--text3);">Asientos con status "Reserved" en SF — pendientes de confirmar como Sold</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <select id="reserved-filter-product" onchange="renderReservedTable()" style="font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;cursor:pointer;font-family:'Inter',sans-serif;"><option value="">Todos los productos</option></select>
-          <button class="btn-export" onclick="exportReservedCSV()">⬇ Exportar CSV</button>
-        </div>
-      </div>
-      <div class="count-info" id="reserved-count-info"></div>
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table>
-            <thead><tr>
-              <th>Producto</th><th>Boca SF</th><th>Fila</th><th>Asiento</th><th>Status SF</th>
-            </tr></thead>
-            <tbody id="reserved-body"></tbody>
-          </table>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -500,12 +530,12 @@ const T={
     noConflicts:'Sin conflictos con estos filtros',
     emptyTitle:'Sube el Excel para comenzar',
     emptySub:'El archivo debe tener una pestaña con "C1" y otra con "SF"',
-    colProduct:'Producto',colSection:'Section C1',colBoca:'Boca SF',colFila:'Fila',colSeat:'Asiento',
-    colStatusC1:'Status C1',colStatusSF:'Status SF actual',colExpected:'Esperado en SF',colProblem:'Problema',
+    colProduct:'Producto',colSection:'Boca',colFila:'Fila',colSeat:'Asiento',
+    colStatusC1:'Status C1',colStatusSF:'Status SF actual',colProblem:'Problema',
     pillMissing:'No en SF',pillDiff:'Status incorrecto',
     cardSeats:'asientos C1',cardMissing:'No en SF',cardDiff:'Status incorrecto',
     updatedAt:'Actualizado',
-    csvHeader:'Producto,Section C1,Boca SF,Fila,Asiento,Status C1,Status SF actual,Status SF esperado,Problema',
+    csvHeader:'Producto,Section C1,Boca SF,Fila,Asiento,Status C1,Status SF actual,Status esperado en C1,Problema',
     csvMissing:'No en SF',csvDiff:'Status incorrecto',
   },
   en:{
@@ -538,8 +568,8 @@ const T={
     noConflicts:'No conflicts with these filters',
     emptyTitle:'Upload the Excel file to start',
     emptySub:'The file must have a tab named "C1" and another named "SF"',
-    colProduct:'Product',colSection:'Section C1',colBoca:'Boca SF',colFila:'Row',colSeat:'Seat',
-    colStatusC1:'C1 Status',colStatusSF:'SF Status (current)',colExpected:'Expected in SF',colProblem:'Issue',
+    colProduct:'Product',colSection:'Boca',colFila:'Row',colSeat:'Seat',
+    colStatusC1:'C1 Status',colStatusSF:'SF Status (current)',colProblem:'Issue',
     pillMissing:'Missing in SF',pillDiff:'Wrong status',
     cardSeats:'C1 seats',cardMissing:'Missing in SF',cardDiff:'Wrong status',
     updatedAt:'Updated',
@@ -594,7 +624,7 @@ function setLang(lang){
   const be=qs('.btn-export');if(be)be.textContent=t.btnExport;
   // Table headers
   const ths=document.querySelectorAll('thead th');
-  if(ths.length>=9){ths[0].textContent=t.colProduct;ths[1].textContent=t.colSection;ths[2].textContent=t.colBoca;ths[3].textContent=t.colFila;ths[4].textContent=t.colSeat;ths[5].textContent=t.colStatusC1;ths[6].textContent=t.colStatusSF;ths[7].textContent=t.colExpected;ths[8].textContent=t.colProblem;}
+  if(ths.length>=7){ths[0].textContent=t.colProduct;ths[1].textContent=t.colSection;ths[2].textContent=t.colFila;ths[3].textContent=t.colSeat;ths[4].textContent=t.colStatusC1;ths[5].textContent=t.colStatusSF;ths[6].textContent=t.colProblem;}
   // Empty state
   const et=qs('.empty-state-title');if(et)et.textContent=t.emptyTitle;
   const es=qs('.empty-state-sub');if(es)es.textContent=t.emptySub;
@@ -603,6 +633,14 @@ function setLang(lang){
 }
 const PRODUCT_COLORS={'Balcony':'#004d98','Players Zone':'#7c3aed','Pitch Row':'#d97706','Vip Ring Seats':'#16a34a'};
 const C1_TO_SF={'reserved from app':'Sold','temporary sold':'Temporary Sold','not available':'Not Available','blocked':'Not Available','vvip lateral':'Sold','vvip tribuna':'Sold','not in map':null,'*category in parent':'Available','blocked pz':null,'inventory jic':null};
+const SF_TO_C1={
+  'sold':'Reserved from App',
+  'temporary sold':'Temporary Sold',
+  'not available':'Not Available',
+  'available':'*Category in Parent',
+  'reserved':'Reserved from App',
+  'club holds':'Not Available',
+};
 const STATUS_COLORS={'Reserved from App':'#004d98','Temporary Sold':'#d97706','Not Available':'#dc2626','Blocked':'#dc2626','VVIP Lateral':'#7c3aed','VVIP Tribuna':'#7c3aed','*Category in Parent':'#d1d5db','Not In Map':'#d1d5db','Sold':'#16a34a','Available':'#d1d5db'};
 
 function normSection(s){s=String(s||'').replace(/section\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'0000':String(n).padStart(4,'0');}
@@ -672,15 +710,23 @@ function analyze(){
     const r=sfData[i];if(!r||!r[2])continue;
     const boca=String(r[2]||''),fila=String(r[3]||''),numero=String(r[4]||''),status=String(r[5]||'');
     sfSC[status]=(sfSC[status]||0)+1;
-    sfMap[makeKey(boca,fila,numero)]=status;
+    sfMap[makeKey(boca,fila,numero)]=status.trim();
   }
 
-  // Build reserved rows from SF
+  // Build reserved rows + available/reserved counts by product from SF
   reservedRows=[];
+  const sfAvailableByProduct={};
+  const sfReservedByProduct={};
   for(let i=1;i<sfData.length;i++){
     const r=sfData[i];if(!r||!r[2])continue;
-    if((r[5]||'').toString().toLowerCase()==='reserved'){
-      reservedRows.push({product:String(r[0]||''),section:String(r[2]||''),row:String(r[3]||''),seat:String(r[4]||'')});
+    const prod=String(r[0]||'').trim();
+    const st=(r[5]||'').toString().toLowerCase();
+    if(st==='reserved'){
+      reservedRows.push({product:prod,section:String(r[2]||''),row:String(r[3]||''),seat:String(r[4]||'')});
+      sfReservedByProduct[prod]=(sfReservedByProduct[prod]||0)+1;
+    }
+    if(st==='available'){
+      sfAvailableByProduct[prod]=(sfAvailableByProduct[prod]||0)+1;
     }
   }
   document.getElementById('m-reserved').textContent=reservedRows.length.toLocaleString();
@@ -701,9 +747,9 @@ function analyze(){
     // Excepción: Reserved from App en C1 + Not Available o Reserved en SF = correcto
     if(sfStatus!==undefined && sl==='reserved from app' && (sfStatus.toLowerCase()==='not available'||sfStatus.toLowerCase()==='reserved')) continue;
     if(sfStatus===undefined){
-      conflicts.push({...r,boca:normSection(r.section),sf_status:'—',expected_sf:expectedSF,type:'missing_sf'});
+      const expectedC1='—';conflicts.push({...r,boca:normSection(r.section),sf_status:'—',expected_c1:expectedC1,type:'missing_sf'});
     }else if(sfStatus.toLowerCase()!==expectedSF.toLowerCase()){
-      conflicts.push({...r,boca:normSection(r.section),sf_status:sfStatus,expected_sf:expectedSF,type:'status_diff'});
+      const sfStatusClean=(sfStatus||"").trim();const expectedC1b=SF_TO_C1[sfStatusClean.toLowerCase()]||sfStatusClean;conflicts.push({...r,boca:normSection(r.section),sf_status:sfStatus,expected_c1:expectedC1b,type:'status_diff'});
     }
   }
 
@@ -711,8 +757,8 @@ function analyze(){
   document.getElementById('m-c1').textContent=c1Rows.length.toLocaleString();
   document.getElementById('m-sf').textContent=Object.keys(sfMap).length.toLocaleString();
   document.getElementById('m-missing').textContent=conflicts.filter(c=>c.type==='missing_sf').length.toLocaleString();
-  document.getElementById('rtab-badge-conflicts').textContent=conflicts.length;
-  document.getElementById('rtab-badge-reserved').textContent=reservedRows.length;
+  
+  
   renderReservedTable();
   document.getElementById('m-diff').textContent=conflicts.filter(c=>c.type==='status_diff').length.toLocaleString();
 
@@ -727,12 +773,17 @@ function analyze(){
     const pTotal=c1Rows.filter(r=>r.product===p).length;
     const color=PRODUCT_COLORS[p]||'#6b7280';
     const t=T[currentLang];
+    const pAvailable=sfAvailableByProduct[p]||0;
+    // Try matching by product name variations (SF may use different names)
+    const pAvailableAlt=Object.entries(sfAvailableByProduct).filter(([k])=>k.toLowerCase().includes(p.toLowerCase().split(' ')[0].toLowerCase())).reduce((a,[,v])=>a+v,0);
+    const availCount=pAvailable||pAvailableAlt;
     return '<div class="product-card" style="border-top-color:'+color+'">'
       +'<div class="product-card-name">'+p+'</div>'
       +'<div class="product-card-total">'+pTotal.toLocaleString()+' <span style="font-size:12px;color:var(--text3)">'+t.cardSeats+'</span></div>'
       +'<hr class="product-card-divider">'
       +'<div class="product-card-row"><span class="product-card-label">'+t.cardMissing+'</span><span class="product-card-val '+(pMissing>0?'danger':'ok')+'">'+pMissing+'</span></div>'
       +'<div class="product-card-row"><span class="product-card-label">'+t.cardDiff+'</span><span class="product-card-val '+(pDiff>0?'warning':'ok')+'">'+pDiff+'</span></div>'
+      +'<div class="product-card-row"><span class="product-card-label" style="color:var(--text3)">Available en SF</span><span class="product-card-val" style="color:var(--text2)">'+availCount+'</span></div>'
       +'</div>';
   }).join('');
 
@@ -745,8 +796,23 @@ function analyze(){
   const sel=document.getElementById('filter-section');
   sel.innerHTML='<option value="">Todas las secciones</option>'+sections.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
 
-  renderBreakdown('c1-breakdown',c1SC);
-  renderBreakdown('sf-breakdown',sfSC);
+  // Build by-product-by-status maps
+  const c1ByProdSt={};
+  c1Rows.forEach(r=>{
+    if(!c1ByProdSt[r.product])c1ByProdSt[r.product]={};
+    c1ByProdSt[r.product][r.status]=(c1ByProdSt[r.product][r.status]||0)+1;
+  });
+  const sfByProdSt={};
+  for(let i=1;i<sfData.length;i++){
+    const r=sfData[i];if(!r||!r[2])continue;
+    const prod=String(r[0]||'').trim();
+    const st=String(r[5]||'');
+    if(!sfByProdSt[prod])sfByProdSt[prod]={};
+    sfByProdSt[prod][st]=(sfByProdSt[prod][st]||0)+1;
+  }
+  const sfProducts=[...new Set(Object.keys(sfByProdSt))].sort();
+  renderBreakdown('c1',c1ByProdSt,products);
+  renderBreakdown('sf',sfByProdSt,sfProducts);
 
   document.getElementById('product-summary').style.display='block';
   document.getElementById('hero-section').style.display='none';
@@ -767,14 +833,57 @@ function analyze(){
   renderTable();
 }
 
-function renderBreakdown(id,counts){
-  const el=document.getElementById(id);
-  const sorted=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]);
-  const max=sorted[0]?sorted[0][1]:1;
-  el.innerHTML=sorted.map(([status,count])=>{
-    const pct=Math.round((count/max)*100),color=STATUS_COLORS[status]||'#d1d5db';
-    return '<div class="status-row"><div class="status-name">'+status+'</div><div class="status-bar-wrap"><div class="status-bar" style="width:'+pct+'%;background:'+color+'"></div></div><div class="status-count">'+count+'</div></div>';
-  }).join('');
+function renderBreakdown(prefix, byProductByStatus, products){
+  // byProductByStatus: { product: { status: count } }
+  // Collect all statuses
+  const allStatuses=[];
+  products.forEach(p=>{
+    Object.keys(byProductByStatus[p]||{}).forEach(s=>{
+      if(s && !allStatuses.includes(s)) allStatuses.push(s);
+    });
+  });
+  // Sort statuses by total desc
+  allStatuses.sort((a,b)=>{
+    const ta=products.reduce((s,p)=>s+(byProductByStatus[p]&&byProductByStatus[p][a]||0),0);
+    const tb=products.reduce((s,p)=>s+(byProductByStatus[p]&&byProductByStatus[p][b]||0),0);
+    return tb-ta;
+  });
+
+  const thStyle='text-align:right;padding:6px 8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.03em;border-bottom:1px solid var(--border);white-space:normal;word-break:break-word;max-width:70px;line-height:1.3;';
+  const th1Style='text-align:left;padding:6px 8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.03em;border-bottom:1px solid var(--border);white-space:nowrap;';
+  const tdStyle='text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text2);font-variant-numeric:tabular-nums;font-size:12px;';
+  const td1Style='text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:500;color:var(--text);white-space:nowrap;font-size:12px;';
+  const tdTotalStyle='text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;font-size:12px;';
+
+  // Header
+  const head=document.getElementById(prefix+'-breakdown-head');
+  head.innerHTML='<tr><th style="'+th1Style+'">Producto</th>'
+    +allStatuses.map(s=>'<th style="'+thStyle+'">'+s+'</th>').join('')
+    +'<th style="'+thStyle+'">Total</th></tr>';
+
+  // Body rows per product
+  const body=document.getElementById(prefix+'-breakdown-body');
+  let totalRow={};
+  allStatuses.forEach(s=>totalRow[s]=0);
+  let grandTotal=0;
+
+  body.innerHTML=products.map(p=>{
+    const counts=byProductByStatus[p]||{};
+    const rowTotal=Object.values(counts).reduce((a,b)=>a+b,0);
+    grandTotal+=rowTotal;
+    allStatuses.forEach(s=>{totalRow[s]+=(counts[s]||0);});
+    return '<tr>'
+      +'<td style="'+td1Style+'">'+p+'</td>'
+      +allStatuses.map(s=>'<td style="'+tdStyle+'">'+(counts[s]||0).toLocaleString()+'</td>').join('')
+      +'<td style="'+tdTotalStyle+'">'+rowTotal.toLocaleString()+'</td>'
+      +'</tr>';
+  }).join('')
+  // Total row
+  +'<tr style="background:var(--surface2);">'
+  +'<td style="'+td1Style+'font-weight:700;">Total</td>'
+  +allStatuses.map(s=>'<td style="'+tdTotalStyle+'">'+(totalRow[s]||0).toLocaleString()+'</td>').join('')
+  +'<td style="'+tdTotalStyle+'font-weight:700;">'+grandTotal.toLocaleString()+'</td>'
+  +'</tr>';
 }
 
 function renderTable(){
@@ -788,13 +897,13 @@ function renderTable(){
   const t=T[currentLang];
   document.getElementById('count-info').textContent=t.showing+' '+rows.length+' '+t.of+' '+conflicts.length+' '+t.conflicts;
   const body=document.getElementById('results-body');
-  if(!rows.length){body.innerHTML='<tr><td colspan="9" class="empty">'+t.noConflicts+'</td></tr>';return;}
+  if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">'+t.noConflicts+'</td></tr>';return;}
   body.innerHTML=rows.map(r=>{
     const cls=r.type==='missing_sf'?'row-danger':'row-warning';
     const pill=r.type==='missing_sf'?'<span class="pill pill-danger">'+t.pillMissing+'</span>':'<span class="pill pill-warning">'+t.pillDiff+'</span>';
     const pcolor=PRODUCT_COLORS[r.product]||'#6b7280';
-    const ptag='<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:'+pcolor+'18;color:'+pcolor+';font-weight:500;">'+r.product+'</span>';
-    return '<tr class="'+cls+'"><td>'+ptag+'</td><td class="td-main">'+r.section+'</td><td>'+r.boca+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td>'+r.status+'</td><td>'+r.sf_status+'</td><td style="color:var(--text3)">'+r.expected_sf+'</td><td>'+pill+'</td></tr>';
+    const ptag='<span style="font-size:12px;padding:4px 10px;border-radius:6px;background:'+pcolor+'18;color:'+pcolor+';font-weight:600;">'+r.product+'</span>';
+    return '<tr class="'+cls+'">'+'<td>'+ptag+'</td><td class="td-main">'+r.section+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td>'+r.status+'</td><td>'+r.sf_status+'</td><td>'+pill+'</td></tr>';
   }).join('');
 }
 
@@ -802,26 +911,38 @@ function renderTable(){
 
 
 
-function switchResultTab(tab){
-  ['conflicts','reserved'].forEach(t=>{
-    document.getElementById('rpanel-'+t).style.display=t===tab?'block':'none';
-    const btn=document.getElementById('rtab-'+t);
-    btn.style.color=t===tab?'var(--blue)':'#9ca3af';
-    btn.style.borderBottom=t===tab?'2px solid var(--blue)':'2px solid transparent';
-  });
-}
+
 
 function renderReservedTable(){
   const fprod=document.getElementById('reserved-filter-product').value;
   let rows=reservedRows;
   if(fprod)rows=rows.filter(r=>r.product===fprod);
   document.getElementById('reserved-count-info').textContent='Mostrando '+rows.length+' de '+reservedRows.length+' asientos';
+  // Breakdown by product
+  const byProd={};
+  reservedRows.forEach(r=>{byProd[r.product]=(byProd[r.product]||0)+1;});
+  const COLORS=PRODUCT_COLORS||{};
+  const bkItems=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).map(([p,n])=>{
+    const c=PRODUCT_COLORS[p]||'#6b7280';
+    const isActive=fprod===p;
+    const bg=isActive?c:(c+'18');
+    const col=isActive?'white':c;
+    return '<span data-prod="'+p+'" style="cursor:pointer;font-size:12px;padding:4px 12px;border-radius:999px;background:'+bg+';color:'+col+';font-weight:500;border:1px solid '+c+'40;">'+p+' · '+n+'</span>';
+  }).join('');
+  document.getElementById('reserved-breakdown').innerHTML='<span style="font-size:13px;font-weight:600;color:var(--text);margin-right:8px;">'+reservedRows.length+' total</span>'+bkItems;
+  document.getElementById('reserved-breakdown').querySelectorAll('[data-prod]').forEach(el=>{
+    el.addEventListener('click',function(){
+      const sel=document.getElementById('reserved-filter-product');
+      sel.value=sel.value===this.dataset.prod?'':this.dataset.prod;
+      renderReservedTable();
+    });
+  });
   const body=document.getElementById('reserved-body');
   if(!rows.length){body.innerHTML='<tr><td colspan="5" class="empty">Sin asientos Reserved en SF</td></tr>';return;}
   body.innerHTML=rows.map(r=>{
     const pcolor=PRODUCT_COLORS[r.product]||'#6b7280';
-    const ptag='<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:'+pcolor+'18;color:'+pcolor+';font-weight:500;">'+r.product+'</span>';
-    return '<tr><td>'+ptag+'</td><td class="td-main">'+r.section+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td><span style="font-size:11px;padding:2px 8px;border-radius:999px;background:#ede9fe;color:#7c3aed;font-weight:600;">Reserved</span></td></tr>';
+    const ptag='<span style="font-size:12px;padding:4px 10px;border-radius:6px;background:'+pcolor+'18;color:'+pcolor+';font-weight:600;">'+r.product+'</span>';
+    return '<tr><td>'+ptag+'</td><td class="td-main">'+normSection(r.section)+'</td><td>'+normRow(r.row)+'</td><td>'+normSeat(r.seat)+'</td><td><span style="font-size:12px;padding:4px 12px;border-radius:999px;background:#ede9fe;color:#7c3aed;font-weight:600;">Reserved</span></td></tr>';
   }).join('');
 }
 
@@ -835,7 +956,7 @@ function exportReservedCSV(){
 function exportCSV(){
   const t=T[currentLang];
   const header=t.csvHeader+'\n';
-  const rows=conflicts.map(r=>[r.product,r.section,r.boca,normRow(r.row),normSeat(r.seat),r.status,r.sf_status,r.expected_sf,r.type==='missing_sf'?t.csvMissing:t.csvDiff].join(',')).join('\n');
+  const rows=conflicts.map(r=>[r.product,r.section,normRow(r.row),normSeat(r.seat),r.status,r.sf_status,r.type==='missing_sf'?t.csvMissing:t.csvDiff].join(',')).join('\n');
   const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='conflicts_c1_sf_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
@@ -935,7 +1056,7 @@ function showCelebration(){
   // Replace results with all-good banner
   document.getElementById('results-section').classList.add('visible');
   document.getElementById('results-body').innerHTML=
-    '<tr><td colspan="9" class="empty" style="padding:2.5rem;color:#15803d;font-size:14px;font-weight:500;">✓ Todo en orden — sin conflictos detectados</td></tr>';
+    '<tr><td colspan="7" class="empty" style="padding:2.5rem;color:#15803d;font-size:14px;font-weight:500;">✓ Todo en orden — sin conflictos detectados</td></tr>';
   document.getElementById('count-info').textContent='';
   // Confetti!
   launchConfetti();
