@@ -305,7 +305,7 @@ td.td-main{color:var(--text);font-weight:600;font-size:13px;}
     <!-- UPLOAD CARD -->
     <div style="max-width:560px;margin:0 auto 1.5rem;">
       <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" style="border-radius:16px;padding:2.5rem 2rem;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
-        <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)">
+        <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)" onclick="event.stopPropagation();">
         <div class="upload-icon" id="upload-icon" style="width:56px;height:56px;font-size:24px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">📊</div>
         <div class="upload-title" id="upload-title" style="font-size:16px;font-weight:600;margin-bottom:6px;">Sube el Excel de reconciliación</div>
         <div class="upload-sub" id="upload-sub" style="font-size:13px;">Arrastra aquí o haz clic · Necesita las pestañas <span>C1</span> y <span>SF</span></div>
@@ -687,7 +687,10 @@ function runAnalysis(){
   setTimeout(()=>{try{analyze();}catch(e){alert('Error: '+e.message);document.getElementById('loading').classList.remove('visible');document.getElementById('btn-analyze').style.display='block';}},50);
 }
 
+let _analyzing=false;
 function analyze(){
+  if(_analyzing)return;_analyzing=true;
+  try{
   const c1Data=getSheetData('c1'),sfData=getSheetData('sf');
   if(!c1Data||!sfData)throw new Error('No se encontraron las pestañas C1 y SF');
 
@@ -746,6 +749,11 @@ function analyze(){
     if(whitelistKeys.has(r.key)) continue;
     // Excepción: Reserved from App en C1 + Not Available o Reserved en SF = correcto
     if(sfStatus!==undefined && sl==='reserved from app' && (sfStatus.toLowerCase()==='not available'||sfStatus.toLowerCase()==='reserved')) continue;
+    // Excepción: Not Available en C1 + Not Available(TV) o Not Available (TV) en SF = correcto
+    const sfLow=(sfStatus||'').toLowerCase();
+    if(sfStatus!==undefined && sl==='not available' && (sfLow==='not available (tv)'||sfLow==='not available(tv)')) continue;
+    // Excepción: Blocked en C1 + Not Available(TV) en SF = correcto
+    if(sfStatus!==undefined && sl==='blocked' && (sfLow==='not available (tv)'||sfLow==='not available(tv)')) continue;
     if(sfStatus===undefined){
       const expectedC1='—';conflicts.push({...r,boca:normSection(r.section),sf_status:'—',expected_c1:expectedC1,type:'missing_sf'});
     }else if(sfStatus.toLowerCase()!==expectedSF.toLowerCase()){
@@ -831,6 +839,7 @@ function analyze(){
     document.getElementById('metric-diff').classList.remove('all-clear');
   }
   renderTable();
+  }finally{_analyzing=false;}
 }
 
 function renderBreakdown(prefix, byProductByStatus, products){
@@ -894,6 +903,13 @@ function renderTable(){
   if(ftype!=='all')rows=rows.filter(r=>r.type===ftype);
   if(fsec)rows=rows.filter(r=>r.section===fsec);
   if(fprod)rows=rows.filter(r=>r.product===fprod);
+  rows=rows.slice().sort((a,b)=>{
+    const ba=parseInt(normSection(a.section))||0,bb=parseInt(normSection(b.section))||0;
+    if(ba!==bb)return ba-bb;
+    const fa=parseInt(normRow(a.row))||0,fb=parseInt(normRow(b.row))||0;
+    if(fa!==fb)return fa-fb;
+    return (parseInt(normSeat(a.seat))||0)-(parseInt(normSeat(b.seat))||0);
+  });
   const t=T[currentLang];
   document.getElementById('count-info').textContent=t.showing+' '+rows.length+' '+t.of+' '+conflicts.length+' '+t.conflicts;
   const body=document.getElementById('results-body');
@@ -917,6 +933,13 @@ function renderReservedTable(){
   const fprod=document.getElementById('reserved-filter-product').value;
   let rows=reservedRows;
   if(fprod)rows=rows.filter(r=>r.product===fprod);
+  rows=rows.slice().sort((a,b)=>{
+    const ba=parseInt(normSection(a.section))||0, bb=parseInt(normSection(b.section))||0;
+    if(ba!==bb)return ba-bb;
+    const fa=parseInt(normRow(a.row))||0, fb=parseInt(normRow(b.row))||0;
+    if(fa!==fb)return fa-fb;
+    return (parseInt(normSeat(a.seat))||0)-(parseInt(normSeat(b.seat))||0);
+  });
   document.getElementById('reserved-count-info').textContent='Mostrando '+rows.length+' de '+reservedRows.length+' asientos';
   // Breakdown by product
   const byProd={};
