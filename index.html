@@ -631,8 +631,8 @@ function setLang(lang){
   // Re-render
   if(conflicts.length>0||sel('results-section').classList.contains('visible'))renderTable();
 }
-const PRODUCT_COLORS={'Balcony':'#004d98','Players Zone':'#7c3aed','Pitch Row':'#d97706','Vip Ring Seats':'#16a34a'};
-const C1_TO_SF={'reserved from app':'Sold','temporary sold':'Temporary Sold','not available':'Not Available','blocked':'Not Available','vvip lateral':'Sold','vvip tribuna':'Sold','not in map':null,'*category in parent':'Available','blocked pz':null,'inventory jic':null};
+const PRODUCT_COLORS={'Balcony':'#004d98','Players Zone':'#7c3aed','Pitch Row':'#d97706','Vip Ring Seats':'#16a34a','VIP Ring Seat':'#16a34a','Loge':'#0891b2','LOGE':'#0891b2','Premium Seats':'#be123c','Premium seats':'#be123c'};
+const C1_TO_SF={'reserved from app':'Sold','temporary sold':'Temporary Sold','not available':null,'blocked':null,'vvip lateral':'Sold','vvip tribuna':'Sold','not in map':null,'*category in parent':'Available','blocked pz':null,'inventory jic':null};
 const SF_TO_C1={
   'sold':'Reserved from App',
   'temporary sold':'Temporary Sold',
