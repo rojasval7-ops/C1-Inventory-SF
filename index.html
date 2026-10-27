@@ -319,6 +319,8 @@ td.td-main{color:var(--text);font-weight:600;font-size:13px;}
       <span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(124,58,237,0.08);color:#7c3aed;font-weight:500;border:1px solid rgba(124,58,237,0.15);">Players Zone</span>
       <span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(217,119,6,0.08);color:#d97706;font-weight:500;border:1px solid rgba(217,119,6,0.15);">Pitch Row</span>
       <span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(22,163,74,0.08);color:#16a34a;font-weight:500;border:1px solid rgba(22,163,74,0.15);">VIP Ring Seats</span>
+      <span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(8,145,178,0.08);color:#0891b2;font-weight:500;border:1px solid rgba(8,145,178,0.15);">Loge Boxes</span>
+      <span style="font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(190,18,60,0.08);color:#be123c;font-weight:500;border:1px solid rgba(190,18,60,0.15);">Premium Seats</span>
     </div>
   </div>
 
@@ -631,7 +633,7 @@ function setLang(lang){
   // Re-render
   if(conflicts.length>0||sel('results-section').classList.contains('visible'))renderTable();
 }
-const PRODUCT_COLORS={'Balcony':'#004d98','Players Zone':'#7c3aed','Pitch Row':'#d97706','Vip Ring Seats':'#16a34a','VIP Ring Seat':'#16a34a','Loge':'#0891b2','LOGE':'#0891b2','Premium Seats':'#be123c','Premium seats':'#be123c'};
+const PRODUCT_COLORS={'Balcony':'#004d98','Players Zone':'#7c3aed','Pitch Row':'#d97706','Vip Ring Seats':'#16a34a','VIP Ring Seat':'#16a34a','Loge':'#0891b2','LOGE':'#0891b2','Loge Boxes':'#0891b2','Loge boxes':'#0891b2','LOGE BOXES':'#0891b2','Premium Seats':'#be123c','Premium Seats':'#be123c','Premium seats':'#be123c'};
 const C1_TO_SF={'reserved from app':'Sold','temporary sold':'Temporary Sold','not available':null,'blocked':null,'vvip lateral':'Sold','vvip tribuna':'Sold','not in map':null,'*category in parent':'Available','blocked pz':null,'inventory jic':null};
 const SF_TO_C1={
   'sold':'Reserved from App',
@@ -646,7 +648,14 @@ const STATUS_COLORS={'Reserved from App':'#004d98','Temporary Sold':'#d97706','N
 function normSection(s){s=String(s||'').replace(/section\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'0000':String(n).padStart(4,'0');}
 function normRow(s){s=String(s||'').replace(/row\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'00':String(n).padStart(2,'0');}
 function normSeat(s){s=String(s||'').replace(/seat\s*/i,'').trim();const n=parseInt(s);return isNaN(n)?'00':String(n).padStart(2,'0');}
-function makeKey(sec,row,seat){return normSection(sec)+'|'+normRow(row)+'|'+normSeat(seat);}
+function isLoge(product){
+  const p=(product||'').toLowerCase();
+  return p.includes('loge');
+}
+function makeKey(sec,row,seat,product){
+  if(isLoge(product)) return 'LOGE|'+normSeat(seat);
+  return normSection(sec)+'|'+normRow(row)+'|'+normSeat(seat);
+}
 
 const zone=document.getElementById('upload-zone');
 zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
@@ -704,16 +713,17 @@ function analyze(){
     const rowKey=normSection(section)+'|'+normRow(row)+'|'+normSeat(seat);
     if(whitelistKeys.has(rowKey))continue;
     c1SC[status]=(c1SC[status]||0)+1;
-    c1Rows.push({product,section,row,seat,status,key:makeKey(section,row,seat)});
+    c1Rows.push({product,section,row,seat,status,key:makeKey(section,row,seat,product)});
   }
 
   // Parse SF — col 0=product, 2=boca, 3=fila, 4=numero, 5=status
   const sfMap={},sfSC={};
   for(let i=1;i<sfData.length;i++){
     const r=sfData[i];if(!r||!r[2])continue;
+    const prod=String(r[0]||'').trim();
     const boca=String(r[2]||''),fila=String(r[3]||''),numero=String(r[4]||''),status=String(r[5]||'');
     sfSC[status]=(sfSC[status]||0)+1;
-    sfMap[makeKey(boca,fila,numero)]=status.trim();
+    sfMap[makeKey(boca,fila,numero,prod)]=status.trim();
   }
 
   // Build reserved rows + available/reserved counts by product from SF
